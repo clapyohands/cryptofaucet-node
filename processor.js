@@ -279,7 +279,9 @@ function _process(){
 				} else {
 					console.log('Updated user record',user.ip,user.address,numReplaced);
 				}
+				//re-run to keep going through queue until finished
 				processing = false;
+				_process();
 			});
 		}
 	});
@@ -295,7 +297,7 @@ function _run(){
 		_index();
 		_getProcessorData();
 
-	} else if (!processing && !gettingdata && (!data.last_run || !data.next_run || data.next_run < new Date())) {
+	} else if (!processing && !gettingdata && (config.faucet.immediate || !data.last_run || !data.next_run || data.next_run < new Date())) {
 		//If processor isn't already running and we've past the "next run" date, then begin processing
 		_process();
 

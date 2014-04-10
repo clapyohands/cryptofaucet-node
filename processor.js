@@ -71,7 +71,7 @@ function queue(ip,address,callback){
 	Starts the faucet processor
 */
 function start(){
-	setImmediate(_run);
+	setInterval(_run,60000);
 	console.log('Faucet processor started');
 }
 
@@ -300,7 +300,4 @@ function _run(){
 		_process();
 
 	}
-
-	//Re-queue this function for the next pass through the event loop
-	setImmediate(_run);
 }

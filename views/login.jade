@@ -1,0 +1,20 @@
+extends layout
+
+block content
+	div.dashboard
+
+		div.login
+
+			h1 Dashboard
+
+			if typeof login_failed != 'undefined'
+				div.alert.alert-danger= msg
+			else
+				div.alert.alert-info= msg
+
+			form#login(action=config.dashboard.path,method='post')
+				input(type='hidden', name='_csrf', value=csrftoken)
+				div.form-group
+					input#password.form-control(name='password',type='password')
+				div.form-actions
+					button(type='submit').btn.btn-primary Login

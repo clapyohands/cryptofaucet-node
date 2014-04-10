@@ -1,0 +1,21 @@
+extends layout
+
+block content
+	div.row
+
+		div.col-xs-3.leftcol
+
+			include inc/leftcol
+
+		div.col-xs-9.col-md-6.midcol
+
+			h1!= h1
+
+			if !success && faucet_text.length > 0
+				p!= faucet_text
+
+			include inc/form
+
+		div.col-xs-12.col-md-3.rightcol
+
+			include inc/rightcol

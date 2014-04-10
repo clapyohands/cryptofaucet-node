@@ -1,0 +1,25 @@
+doctype html
+
+html
+	include inc/header
+
+	body
+	div.navbar.navbar-default.navbar-static-top(role='navigation')
+		div.container
+			div.navbar-header
+				button.navbar-toggle(type='button',data-toggle='collapse',data-target='.navbar-collapse')
+					span.sr-only Toggle Navigation
+					span.icon-bar
+					span.icon-bar
+					span.icon-bar
+				a.navbar-brand(href='/') #{brand}
+			div.navbar-collapse.collapse
+				ul.nav.navbar-nav
+					include inc/nav
+
+	div.container.clearfix
+		block content
+
+		include inc/footer
+
+	include inc/scripts

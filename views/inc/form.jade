@@ -1,0 +1,17 @@
+if failed
+	div.alert.alert-block.alert-danger
+		strong= fail_msg
+else if success
+	div.alert.alert-block.alert-success
+		strong= success_msg
+
+if failed || !success
+	form#faucet.form-inline(action='/submit',method='POST',role='form')
+		input(type='hidden', name='_csrf', value=csrftoken)
+		fieldset
+			div.form-group
+				label.sr-only(for='txtAddress') Enter your #{coin} address
+				input#txtAddress.form-control(type='text',name='address',placeholder='#{coin} address')
+			button.btn.btn-primary(type='submit') Submit
+
+			div#captcha

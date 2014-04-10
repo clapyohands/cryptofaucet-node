@@ -1,0 +1,43 @@
+h1 {
+
+}
+.midcol,.dashboard {
+	text-align:center;
+}
+.midcol p {
+	color:#999999;
+	text-align:left;
+	padding:6px 6px 10px 6px;
+}
+.login {
+	width:400px;
+	margin:auto;
+}
+#txtAddress {
+	margin-right:10px;
+	min-width:350px;
+}
+#captcha {
+	display:block!important;
+	padding-top:8px;
+}
+#captcha label {
+	padding-right:4px;
+	color:#999999;
+}
+.payouts h4 {
+	color:#3498db;
+}
+.payouts .interval {
+	color:#f39c12;
+}
+.payouts ul {
+	list-style-type: none;
+	padding-left:4px;
+}
+.address-report ul {
+	list-style-type: none;
+}
+.address-report label {
+	padding-right:6px;
+}

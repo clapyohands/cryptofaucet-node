@@ -1,0 +1,75 @@
+extends layout
+
+block content
+	div.dashboard
+
+		h1 Dashboard
+
+		if processor_error != ''
+			div.alert.alert-block.alert-danger!= processor_error
+		else if processor_success != ''
+			div.alert.alert-block.alert-success!= processor_success
+
+	div.row
+
+		div.col-md-4
+
+			div.panel.panel-success
+				div.panel-heading
+					h3.panel-title Wallet Data
+				div.panel-body
+						ul
+							li Balance: #{wallet.balance}
+							li Block count: #{wallet.block_count}
+							li Difficulty: #{wallet.difficulty}
+							li Connections: #{wallet.connections}
+						h4.text-warning Deposit Address:
+						p #{wallet.deposit_address}
+
+		div.col-md-4
+
+			div.panel.panel-primary
+				div.panel-heading
+					h3.panel-title Current Queue
+				div.panel-body
+						ul
+							li Addresses in queue: #{queue.users}
+							li Next run: #{queue.next_run}
+
+						div.text-center
+							form#forceFaucet(action=dashboard.path,method='post')
+								input(type='hidden', name='_csrf', value=csrftoken)
+								div.form-group
+									input#force_run(type='hidden',name='force_run',value=1)
+									button(type='submit').btn.btn-primary Run Now
+
+		div.col-md-4
+
+			div.panel.panel-info
+				div.panel-heading
+					h3.panel-title Historical Data
+				div.panel-body
+					ul
+						li Processor run count: #{historical.run_count}
+						li Total recipients: #{historical.send_count}
+						li Total sent: #{historical.amount}	
+
+	div.panel.panel-info.address-report
+		div.panel-heading
+			h3.panel-title Address Report
+		div.panel-body
+			if address_data
+				h4.text-success Address: #{address_data.address}
+				h5.text-info Payouts:
+				ul
+					each payout in address_data.payouts
+						li #{payout} #{symbol}
+			
+				p= ''
+
+			form#addressReport(action=dashboard.path,method='post').form-inline
+				input(type='hidden', name='_csrf', value=csrftoken)
+				div.form-group
+					label(for='txtAddress') Enter an address:
+					input#txtAddress.form-control(type='text',name='address')
+					button(type='submit').btn.btn-primary Get Report

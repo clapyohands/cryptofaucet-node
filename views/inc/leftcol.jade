@@ -1,0 +1,18 @@
+div.well
+
+	div.payouts
+
+		h4!= payout_header
+
+		if faucet.payout instanceof Array
+			ul.odds
+				each level in faucet.payout
+					li= level.payout+' '+symbol+': '+level.odds+'%'
+		else if typeof faucet.payout == "number"
+			h5= faucet.payout+' '+symbol
+		else if faucet.payout && typeof faucet.payout.minimum != 'undefined' && typeof faucet.payout.maximum != 'undefined'
+			ul.minmax
+				li= 'Minimum: '+faucet.payout.minimum+' '+symbol
+				li= 'Maximum: '+faucet.payout.minimum+' '+symbol
+		unless faucet.immediate
+			p.interval= 'Payouts every '+faucet.interval

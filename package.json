@@ -1,0 +1,12 @@
+{
+    "name": "cryptofaucet-node",
+    "version": "0.1.0",
+    "private": true,
+    "dependencies": {
+        "express": "3.x",
+        "jade": "*",
+        "bitcoin": "*",
+        "iz": "*",
+        "nedb":"*"
+    }
+}

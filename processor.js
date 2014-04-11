@@ -123,9 +123,9 @@ function _getAmount() {
 		return choices[Math.floor(Math.random() * choices.length)];
 		
 	} else if (iz.number(config.faucet.payout)) {
-		return payout;
-	} else if (payout && iz.required(config.faucet.payout.minimum) && iz.required(config.faucet.payout.maximum)) {
-		return Math.floor(Math.random() * (config.faucet.payout.maximum - config.faucet.payout.minimum + 1)) + config.faucet.payout.minimum;;
+		return config.faucet.payout;
+	} else if (config.faucet.payout && iz.required(config.faucet.payout.minimum) && iz.required(config.faucet.payout.maximum)) {
+		return Math.floor(Math.random() * (config.faucet.payout.maximum - config.faucet.payout.minimum + 1)) + config.faucet.payout.minimum;
 	}
 	return -1;
 }

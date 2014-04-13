@@ -71,6 +71,7 @@ function queue(ip,address,callback){
 	Starts the faucet processor
 */
 function start(){
+	_run();
 	setInterval(_run,60000);
 	console.log('Faucet processor started');
 }
@@ -133,7 +134,7 @@ function _getAmount() {
 /*
 	Gets processor data from the database (runs on initial load)
 */
-function _getProcessorData(){
+function _getProcessorData(callback){
 	console.log('Getting processor data');
 	gettingdata = true;
 	db.processor.findOne({key:'data'},function(err,row){
@@ -147,6 +148,7 @@ function _getProcessorData(){
 		}
 		gotdata = true;
 		gettingdata = false;
+		if (callback) callback(err,row);
 	});
 }
 
@@ -154,7 +156,7 @@ function _getProcessorData(){
 	Gets the wallet data direct from the daemon
 */
 function _getWalletData(callback){
-	console.log('Getting wallet data');
+	console.log('Updating wallet data');
 	client.getInfo(function(err,response){
 		if (err) {
 			console.log('Could not get wallet data!',err);
@@ -163,14 +165,15 @@ function _getWalletData(callback){
 			data.wallet.block_count = response.blocks;
 			data.wallet.difficulty = response.difficulty;
 			data.wallet.connections = response.connections;
-			client.getAccountAddress(config.rpc.account,function(err,addr){
-				if (err) {
-					console.log('Could not get wallet deposit address!',err);
-				} else {
-					data.wallet.deposit_address = addr;
-				}
-			})
-			console.log('Wallet data updated',data.wallet);
+			if (data.wallet.deposit_address == '' || data.wallet.deposit_address == 'N/A') { 
+				client.getAccountAddress(config.rpc.account,function(err,addr){
+					if (err) {
+						console.log('Could not get wallet deposit address!',err);
+					} else {
+						data.wallet.deposit_address = addr;
+					}
+				});
+			}
 		}
 		if (callback) callback(err,response);
 	});
@@ -295,11 +298,21 @@ function _run(){
 	if (!gotdata && !gettingdata) {
 		//If we haven't done anything yet, setup the db indexes and get the processor data from database.
 		_index();
-		_getProcessorData();
+		_getProcessorData(function(err){
+			if (!err) {
+				_getWalletData(function(err,wallet_data){
+					if (!err) _insert();
+				});
+			}
+		});
 
 	} else if (!processing && !gettingdata && (config.faucet.immediate || !data.last_run || !data.next_run || data.next_run < new Date())) {
 		//If processor isn't already running and we've past the "next run" date, then begin processing
 		_process();
 
+	} else if (!processing && !gettingdata) {
+		_getWalletData(function(err,wallet_data){
+			if (!err) _insert();
+		});
 	}
 }

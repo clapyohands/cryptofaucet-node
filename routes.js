@@ -73,72 +73,61 @@ exports.dashboard = function(req,res){
 	} else {
 
 		//delay rendering until we have data.
-		db.processor.findOne({key:'data'},function(err,data){
+		var data = processor.getData();
+		
 
-			if (err || !data) {
-				console.log('Error looking for processor data for dashboard',err,data)
+		//if the processor is failing, we will display the error message
+		arg.processor_error = data.error_message;
 
-			} else {
+		//current queue info: # of users, ETA until run
+		arg.queue.users = data.queue.length;
+		arg.queue.next_run = _formatNextRun(data.next_run);
 
-				//if the processor is failing, we will display the error message
-				arg.processor_error = data.error_message;
+		//historical info: total times, total recipients, and total amount sent
+		arg.historical.run_count = data.counters.run;
+		arg.historical.send_count = data.counters.sent;
+		arg.historical.amount = data.counters.amount+' '+config.symbol;
 
-				//current queue info: # of users, ETA until run
-				var d = data.next_run.getDate()
-					month=["January","February","March","April","May","June","July","August","September","October","November","December"],
-					m = month[data.next_run.getMonth()];
-				arg.queue.users = data.queue.length;
-				arg.queue.next_run = m+' '+d+', '+data.next_run.toLocaleTimeString();
+		//wallet daemon info
+		arg.wallet = {
+			balance: (iz.number(data.wallet.balance) ? data.wallet.balance+' '+config.symbol : data.wallet.balance)
+			,block_count: data.wallet.block_count
+			,difficulty: data.wallet.difficulty
+			,connections: data.wallet.connections
+			,deposit_address: data.wallet.deposit_address
+		};
 
-				//historical info: total times, total recipients, and total amount sent
-				arg.historical.run_count = data.counters.run;
-				arg.historical.send_count = data.counters.sent;
-				arg.historical.amount = data.counters.amount+' '+config.symbol;
+		if (iz.required(req.body.force_run)) {
+			console.log("FORCING PROCESSOR TO RUN!");
+			processor.force();
+			arg.processor_success = 'Processor will run shortly. <a href="'+config.dashboard.path+'">Update dashboard</a>';
+		}
 
-				//wallet daemon info
-				arg.wallet = {
-					balance: (iz.number(data.wallet.balance) ? data.wallet.balance+' '+config.symbol : data.wallet.balance)
-					,block_count: data.wallet.block_count
-					,difficulty: data.wallet.difficulty
-					,connections: data.wallet.connections
-					,deposit_address: data.wallet.deposit_address
-				};
-
-			}
-
-			if (iz.required(req.body.force_run)) {
-				console.log("FORCING PROCESSOR TO RUN!");
-				processor.force();
-				arg.processor_success = 'Processor will run shortly. <a href="'+config.dashboard.path+'">Update dashboard</a>';
-			}
-
-			//user requesting an address report
-			if (iz.required(req.body.address)) {
-				db.users.findOne({key:req.body.address},function(err,user){
-					if (err) {
-						console.log("Error fetching address for dashboard report",req.body.address,err);
-						arg.processor_error += 'Address not found';
-					} else if (!user || iz.empty(user)) {
-						arg.processor_error += 'Address not found';
-					} else {
-						arg.address_data = {
-							address: req.body.address
-							,counter: user.counter
-							,payouts: (iz.required(user.payouts) ? user.payouts : [])
-						}
+		//user requesting an address report
+		if (iz.required(req.body.address)) {
+			db.users.findOne({key:req.body.address},function(err,user){
+				if (err) {
+					console.log("Error fetching address for dashboard report",req.body.address,err);
+					arg.processor_error += 'Address not found';
+				} else if (!user || iz.empty(user)) {
+					arg.processor_error += 'Address not found';
+				} else {
+					arg.address_data = {
+						address: req.body.address
+						,counter: user.counter
+						,payouts: (iz.required(user.payouts) ? user.payouts : [])
 					}
+				}
 
-					_render(req,res,pg,arg);
-				});
-
-			} else {
-				// just show the dashboard
 				_render(req,res,pg,arg);
+			});
 
-			}
+		} else {
+			// just show the dashboard
+			_render(req,res,pg,arg);
 
-			
-		});
+		}
+
 	}
 };
 
@@ -338,6 +327,17 @@ function _failure(req, res, msg) {
 	_render(req,res,'home',{failed:true,fail_msg:msg});
 }
 
+/*
+	Formats next run date for display
+*/
+function _formatNextRun(dt) {
+	var d = dt.getDate()
+		month=["January","February","March","April","May","June","July","August","September","October","November","December"],
+		m = month[dt.getMonth()];
+
+	return m+' '+d+', '+dt.toLocaleTimeString();
+}
+
 
 /*
 	Returns true if user is admin
@@ -451,12 +451,15 @@ function _success(req, res, msg) {
 	Sprinkle in the additional parameters (if any)
 */
 function _vars(req,res,page,additional) {
-	var req_config = {
+	var processor_data = processor.getData()
+		,req_config = {
 			page:page
 			,csrftoken:res.locals.csrftoken
 			,isAdmin:_isAdmin(req)
-		},
-		conf = {};
+			,next_run:_formatNextRun(processor_data.next_run)
+			,wallet_balance:processor_data.wallet.balance
+		}
+		,conf = {};
 
 	/*global*/
 	conf = _extend(true,conf,config);

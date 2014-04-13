@@ -14,5 +14,12 @@ div.well
 			ul.minmax
 				li= 'Minimum: '+faucet.payout.minimum+' '+symbol
 				li= 'Maximum: '+faucet.payout.minimum+' '+symbol
+		
 		unless faucet.immediate
 			p.interval= 'Payouts every '+faucet.interval
+
+			if show_next_payout
+				p.next-payout= 'Next payout: '+next_run
+
+			if show_wallet_balance
+				p.wallet-balance= 'Current Balance: '+wallet_balance

@@ -10,6 +10,7 @@ exports.isQueued = isQueued;
 exports.queue = queue;
 exports.start = start;
 exports.force = force;
+exports.getData = getData;
 
 var data = {
 		key:'data'
@@ -41,6 +42,13 @@ var data = {
 */
 function force() {
 	data.next_run = new Date();
+}
+
+/*
+	Returns the current processor data
+*/
+function getData() {
+	return data;
 }
 
 /*

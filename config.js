@@ -9,6 +9,8 @@
 	coin - name of the coin for this faucet
 	symbol - symbol of the coin for this faucet
 	session_secret - secret needed for Express sessions
+	show_next_run - set to true to include next run date in left column
+	show_wallet_balance - set to true to include current wallet balance in left column
 
 	------------------------------------------------------
 	pages - each key holds variables for that page
@@ -64,6 +66,8 @@ module.exports = {
 		}
 	}
 	,'session_secret':"_secret_"
+	,'show_next_payout': false
+	,'show_wallet_balance': false
 	,'rpc':{
 		'host':"localhost"
 		,'port':4839

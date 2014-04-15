@@ -49,6 +49,9 @@
 	dashboard - options for the administrator dashboard
 	dashboard.path - URL path to use (e.g. /dashboard)
 	dashboard.password - Password to login
+
+	------------------------------------------------------
+	wallet_explorer_auth - Auth key for walletexplorer.net if you wish to report coin data (walletexplorer helps the community keep their wallets up to date by tracking what versions are in use by public services)
 ****************************/
 module.exports = {
 	'theme': "darkly"
@@ -98,4 +101,5 @@ module.exports = {
 		'path':'/dashboard'
 		,'password':'_admin_password_'
 	}
+	,'wallet_explorer_auth':''
 };

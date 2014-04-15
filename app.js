@@ -14,6 +14,7 @@
 	node-bitcoin
 	iz
 	nedb
+	querystring
 
 ***************************************/
 

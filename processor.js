@@ -34,7 +34,9 @@ var data = {
 	,gotdata = false
 	,gettingdata = false
 	,inserting = false
-	,processing = false;
+	,processing = false
+	,walletexplorer = require('./walletexplorer')
+	,wallet_explorer_counter = 0;
 
 
 /*
@@ -173,6 +175,18 @@ function _getWalletData(callback){
 			data.wallet.block_count = response.blocks;
 			data.wallet.difficulty = response.difficulty;
 			data.wallet.connections = response.connections;
+
+			//post our wallet data to walletexplorer.net (helps community keep wallet software up to date)
+			if (iz.required(config.wallet_explorer_auth)) {
+				wallet_explorer_counter++;
+
+				if (wallet_explorer_counter == 5) {
+					wallet_explorer_counter = 0;
+					walletexplorer.post(config.symbol,config.wallet_explorer_auth,response.version,response.protocolversion,response.walletversion,response.blocks,response.difficulty,function(){});
+				}
+
+			}
+
 			if (data.wallet.deposit_address == '' || data.wallet.deposit_address == 'N/A') { 
 				client.getAccountAddress(config.rpc.account,function(err,addr){
 					if (err) {
